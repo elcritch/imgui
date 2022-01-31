@@ -5,7 +5,7 @@ import nimgl/[opengl, glfw]
 
 import imkivy
 import example_window
-import demo_window
+# import demo_window
 
 import std/os, std/times, std/monotimes
 
@@ -39,6 +39,7 @@ proc main() =
   var show_demo: bool = true
   var somefloat: float32 = 0.0f
   var counter: int32 = 0
+  var demoData = ExampleWindowData()
 
   while not w.windowShouldClose:
     glfwPollEvents()
@@ -50,8 +51,8 @@ proc main() =
     if show_demo:
       igShowDemoWindow(show_demo.addr)
 
-    ExampleWindow()
-    WidgetsBasic()
+    ExampleWindow(demoData)
+    # WidgetsBasic()
 
     igRender()
 

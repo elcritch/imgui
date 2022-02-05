@@ -45,11 +45,18 @@ macro Button*(label: string, blk: untyped) =
 
   btncnt.inc()
   var btnid = btncnt 
-  result = quote do:
-    igPushID(`btnid`)
-    if igButton(`label`, `sizeProp`):
-      `onPressAct`
-    igPopId()
+  if sizeProp.isNil:
+    result = quote do:
+      igPushID(`btnid`)
+      if igButton(`label`):
+        `onPressAct`
+      igPopId()
+  else:
+    result = quote do:
+      igPushID(`btnid`)
+      if igButton(`label`, `sizeProp`):
+        `onPressAct`
+      igPopId()
 
 template Slider*(label: string, val: var float, min = 0.0, max = 1.0) =
   igSliderFloat(label, val.addr, min, max)
@@ -61,18 +68,19 @@ macro Horizontal*(blk: untyped) =
     if idx + 1 < blk.len():
       result.add quote do:
         igSameLine()
+  # result.add quote do: igNewLine()
 
 macro widget*(class: untyped, blk: untyped) =
   var objectFields: NimNode
   var body = newStmtList()
   for code in blk:
-    echo "widget:code: ", code.treeRepr
+    # echo "widget:code: ", code.treeRepr
     if code.kind == nnkCall:
       var name = code[0]
       case name.repr:
       of "object":
         objectFields = code[1]
-        echo "widget:code:defs: ", objectFields.treeRepr
+        # echo "widget:code:defs: ", objectFields.treeRepr
         continue
     body.add code
 
@@ -99,7 +107,7 @@ macro widget*(class: untyped, blk: untyped) =
   result.add quote do:
     proc `class`*(`self`: var `objName`) =
       `body`
-  echo "result:\n", result.treeRepr
+  # echo "result:\n", result.treeRepr
 
 template CollapsingHeader*(label: string, blk: untyped): untyped =
   if igCollapsingHeader(label, 0.ImGuiTreeNodeFlags):

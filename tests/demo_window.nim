@@ -3,27 +3,20 @@ import imkivy
 
 widget WidgetsBasic:
   object:
-    show_demo: bool
-    somefloat: float32
-    counter: int
+    counter: uint
+    check: bool
 
   # Simple window
   Window("Widgets"):
-    CollapsingHeader("Widgets"):
-
-      Text: "This is some useful text."
-      Checkbox("Demo Window", self.show_demo)
-      Slider("float", self.somefloat)
+    CollapsingHeader("Basic"):
 
       Horizontal:
         Button("Button"):
-          size: (w: 50, h: 20)
-          on_press: self.counter.inc
-        Button("Button"):
-          size: (w: 0, h: 0)
-          on_press: self.counter.inc
-        Text("counter = %d", self.counter)
+          on_press: self.counter.inc()
 
-      Text("Application average %.3f ms/frame (%.1f FPS)",
-          1000.0f / igGetIO().framerate, igGetIO().framerate)
+        if (self.counter mod 2) == 1:
+          Text("Thanks for clicking me! ")
+        else:
+          Text("")
 
+      Checkbox("checkbox", self.check)

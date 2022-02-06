@@ -24,7 +24,18 @@ template Checkbox*(label: string, val: var bool) =
 template Slider*(label: string, val: var float, min = 0.0, max = 1.0) =
   igSliderFloat(label, val.addr, min, max)
 
-var btncnt {.compileTime.} = 0
+var
+  ItemIds {.compileTime.} = 0
+
+macro mkUniqueId(line: untyped): untyped =
+  ItemIds.inc()
+  var itemid = ItemIds.int32 
+  result = newStmtList()
+  result = quote do:
+    igPushID(`itemid`)
+    `line`
+    igPopId()
+  echo "mkUniqueId: ", result.repr
 
 macro Button*(label: string, blk: untyped) =
   # echo "button: blk: ", blk.treeRepr
@@ -43,23 +54,43 @@ macro Button*(label: string, blk: untyped) =
           let sz = `val`
           ImVec2(x: sz[0].toFloat(), y: sz[1].toFloat())
 
-  btncnt.inc()
-  var btnid = btncnt 
+  # btncnt.inc()
+  # var btnid = btncnt 
   if sizeProp.isNil:
     result = quote do:
-      igPushID(`btnid`)
-      if igButton(`label`):
-        `onPressAct`
-      igPopId()
+      mkUniqueId():
+        if igButton(`label`):
+          `onPressAct`
   else:
     result = quote do:
-      igPushID(`btnid`)
-      if igButton(`label`, `sizeProp`):
-        `onPressAct`
-      igPopId()
+      mkUniqueId():
+        if igButton(`label`, `sizeProp`):
+          `onPressAct`
 
 template Slider*(label: string, val: var float, min = 0.0, max = 1.0) =
   igSliderFloat(label, val.addr, min, max)
+
+template RadioButton*(label: string, idx: var int32, val: int) =
+  mkUniqueId():
+    igRadioButton(label, idx.addr, val)
+
+template ShowWhen*(val: bool, blk: untyped) =
+  if val: blk else: Text("")
+
+macro RadioButtons*(variable: int32, horiz: static[bool] = true, values: untyped) =
+  var res = newStmtList()
+  for idx, val in values.pairs():
+    let
+      x = val[0]
+      y = val[1]
+    res.add quote do:
+      mkUniqueId():
+        igRadioButton(`x`.cstring, `variable`.addr, `y`)
+    if horiz and idx + 1 < values.len():
+      res.add quote do:
+        igSameLine()
+  result = newBlockStmt(res)
+  echo "radiobuttons: ", result.repr
 
 macro Horizontal*(blk: untyped) =
   result = newStmtList()

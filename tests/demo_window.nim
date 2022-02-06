@@ -5,6 +5,8 @@ widget WidgetsBasic:
   object:
     counter: uint
     check: bool
+    radio: int32
+    radio2: int32
 
   # Simple window
   Window("Widgets"):
@@ -13,10 +15,20 @@ widget WidgetsBasic:
       Horizontal:
         Button("Button"):
           on_press: self.counter.inc()
-
-        if (self.counter mod 2) == 1:
+        ShowWhen((self.counter mod 2) == 1):
           Text("Thanks for clicking me! ")
-        else:
-          Text("")
 
       Checkbox("checkbox", self.check)
+
+      Horizontal:
+        RadioButton("radio a", self.radio, 0)
+        RadioButton("radio b", self.radio, 1)
+        RadioButton("radio c", self.radio, 2)
+
+      RadioButtons(self.radio2, horiz=true):
+        ("radio a", 0)
+        ("radio b", 1)
+        ("radio c", 2)
+
+      Text("radio: %d", self.radio2)
+

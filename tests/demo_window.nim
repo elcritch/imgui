@@ -32,3 +32,14 @@ widget WidgetsBasic:
 
       Text("radio: %d", self.radio2)
 
+      for i in 0..<7:
+        let fi = i.toFloat()
+        expandMacros:
+          if i > 0:
+            SameLine()
+          mkUniqueId():
+            PushStyleColor(ImGuiCol.Button, ImColorHSV(fi / 7.0f, 0.6f, 0.6f))
+            PushStyleColor(ImGuiCol.ButtonHovered, ImColorHSV(fi / 7.0f, 0.7f, 0.7f))
+            PushStyleColor(ImGuiCol.ButtonActive, ImColorHSV(fi / 7.0f, 0.8f, 0.8f))
+            Button("Click")
+            PopStyleColor(3)

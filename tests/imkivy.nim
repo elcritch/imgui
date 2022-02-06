@@ -24,10 +24,19 @@ template Checkbox*(label: string, val: var bool) =
 template Slider*(label: string, val: var float, min = 0.0, max = 1.0) =
   igSliderFloat(label, val.addr, min, max)
 
+template SameLine*() = igSameLine()
+template PushStyleColor*(idx: ImGuiCol, col: ImVec4) = igPushStyleColor(idx, col)
+template PopStyleColor*(count: int32) = igPopStyleColor(count)
+
+proc ImColorHSV*(h: float32, s: float32, v: float32, a: float32 = 1.0f): ImVec4 =
+  var res: ImColor 
+  hSVNonUDT(res.addr, h, s, v, a)
+  return res.value
+
 var
   ItemIds {.compileTime.} = 0
 
-macro mkUniqueId(line: untyped): untyped =
+macro mkUniqueId*(line: untyped): untyped =
   ItemIds.inc()
   var itemid = ItemIds.int32 
   result = newStmtList()
@@ -36,6 +45,8 @@ macro mkUniqueId(line: untyped): untyped =
     `line`
     igPopId()
   echo "mkUniqueId: ", result.repr
+
+template Button*(text: string) = igButton(text)
 
 macro Button*(label: string, blk: untyped) =
   # echo "button: blk: ", blk.treeRepr
@@ -91,6 +102,10 @@ macro RadioButtons*(variable: int32, horiz: static[bool] = true, values: untyped
         igSameLine()
   result = newBlockStmt(res)
   echo "radiobuttons: ", result.repr
+
+template RadioButton*(label: string, idx: var int32, val: int) =
+  mkUniqueId():
+    igRadioButton(label, idx.addr, val)
 
 macro Horizontal*(blk: untyped) =
   result = newStmtList()
